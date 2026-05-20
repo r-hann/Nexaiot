@@ -10,7 +10,7 @@
 
 const NEXAIOT_CONFIG = {
   // ← GANTI INI dengan URL deployment Google Apps Script kamu
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxyylv_1YJfTcht5aUepra1-29S50gRnZPstx8keX6XPk96EShn3_JDcQKT-GyBuVMk/exec',
 
   APP_NAME:        'NexaIoT',
   VERSION:         '2.0.0',
