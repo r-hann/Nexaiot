@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexaIoT — Smart Monitoring Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --bg2: #0f1117;
+    --bg3: #141820;
+    --surface: #1a1f2e;
+    --surface2: #1e2436;
+    --border: rgba(255,255,255,0.06);
+    --border2: rgba(255,255,255,0.12);
+    --accent: #00d4aa;
+    --accent2: #0099ff;
+    --accent3: #7c3aed;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --text: #e8eaf0;
+    --text2: #8b91a8;
+    --text3: #555b72;
+    --font: 'Space Grotesk', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --r: 10px;
+    --r2: 14px;
+    --sidebar: 240px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    color: #000;
+  }
+
+  .logo-text {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 2px;
+    margin-top: 2px;
+    font-family: var(--mono);
+  }
+
+  .nav {
+    flex: 1;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-y: auto;
+  }
+
+  .nav-section {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--text3);
+    padding: 12px 8px 6px;
+    font-family: var(--mono);
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--r);
+    cursor: pointer;
+    color: var(--text2);
+    transition: all 0.15s;
+    font-size: 13.5px;
+    font-weight: 400;
+    position: relative;
+  }
+
+  .nav-item:hover {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .nav-item.active {
+    background: rgba(0, 212, 170, 0.1);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 6px; bottom: 6px;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 3px 3px 0;
+  }
+
+  .nav-item i { font-size: 17px; width: 20px; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--danger);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 20px;
+    font-family: var(--mono);
+  }
+
+  .sidebar-footer {
+    padding: 16px 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: var(--r);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .user-card:hover { background: var(--surface); }
+
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent3), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: #fff;
+    flex-shrink: 0;
+  }
+
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-role { font-size: 11px; color: var(--text3); }
+
+  /* Main */
+  .main {
+    margin-left: var(--sidebar);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Topbar */
+  .topbar {
+    height: 60px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 28px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-title {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .topbar-path {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  .topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    border-radius: var(--r);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+
+  .btn-ghost:hover { background: var(--surface); color: var(--text); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-primary:hover { filter: brightness(1.1); }
+
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+  .icon-btn {
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--r);
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 17px;
+  }
+
+  .icon-btn:hover { background: var(--surface); color: var(--text); }
+
+  .notif-dot {
+    position: relative;
+  }
+
+  .notif-dot::after {
+    content: '';
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 7px; height: 7px;
+    background: var(--danger);
+    border-radius: 50%;
+    border: 1.5px solid var(--bg2);
+  }
+
+  /* Content */
+  .content {
+    padding: 28px;
+    flex: 1;
+  }
+
+  /* Section */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::before {
+    content: '';
+    width: 3px; height: 14px;
+    background: var(--accent);
+    border-radius: 3px;
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    padding: 18px 20px;
+    transition: border-color 0.2s;
+    cursor: default;
+  }
+
+  .stat-card:hover { border-color: var(--border2); }
+
+  .stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  .stat-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-sub {
+    font-size: 11.5px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .stat-delta {
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--mono);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .delta-up { color: var(--success); background: rgba(34,197,94,0.1); }
+  .delta-down { color: var(--danger); background: rgba(239,68,68,0.1); }
+
+  /* Devices grid */
+  .devices-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .device-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .device-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .device-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+  .device-card:hover::after { opacity: 1; }
+  .device-card.offline::after { background: var(--danger); opacity: 1; }
+  .device-card.warning::after { background: var(--warn); opacity: 1; }
+
+  .device-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .device-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 500;
+  }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+  }
+
+  .status-dot.online { background: var(--success); box-shadow: 0 0 8px rgba(34,197,94,0.6); }
+  .status-dot.offline { background: var(--danger); }
+  .status-dot.warning { background: var(--warn); box-shadow: 0 0 8px rgba(245,158,11,0.6); }
+
+  .device-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .device-type { font-size: 11.5px; color: var(--text3); font-family: var(--mono); }
+
+  .device-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .metric-item {
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+
+  .metric-label { font-size: 10px; color: var(--text3); margin-bottom: 3px; }
+  .metric-value { font-size: 14px; font-weight: 600; font-family: var(--mono); }
+
+  /* Mini chart */
+  .mini-chart {
+    height: 36px;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    margin-top: 12px;
+  }
+
+  .chart-bar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+    background: rgba(0, 212, 170, 0.2);
+    transition: background 0.2s;
+    min-height: 4px;
+  }
+
+  .device-card:hover .chart-bar { background: rgba(0, 212, 170, 0.35); }
+
+  /* Two col layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  /* Activity feed */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .log-list {
+    padding: 8px 0;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+
+  .log-list::-webkit-scrollbar { width: 4px; }
+  .log-list::-webkit-scrollbar-track { background: transparent; }
+  .log-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .log-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 18px;
+    transition: background 0.15s;
+  }
+
+  .log-item:hover { background: rgba(255,255,255,0.02); }
+
+  .log-icon {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .log-icon.info { background: rgba(0,153,255,0.12); color: var(--accent2); }
+  .log-icon.success { background: rgba(34,197,94,0.12); color: var(--success); }
+  .log-icon.warning { background: rgba(245,158,11,0.12); color: var(--warn); }
+  .log-icon.danger { background: rgba(239,68,68,0.12); color: var(--danger); }
+
+  .log-msg { font-size: 12.5px; color: var(--text); line-height: 1.5; }
+  .log-time { font-size: 10.5px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+
+  /* Quick stat panel */
+  .quick-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .alert-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    overflow: hidden;
+  }
+
+  .alert-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  .alert-item:last-child { border-bottom: none; }
+  .alert-item:hover { background: rgba(255,255,255,0.02); }
+
+  .alert-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .alert-text { flex: 1; }
+  .alert-title { font-size: 12.5px; font-weight: 500; }
+  .alert-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+  /* Projects section */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .project-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+
+  .project-card.new-project {
+    border-style: dashed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 160px;
+    color: var(--text3);
+  }
+
+  .project-card.new-project:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .project-card.new-project i { font-size: 28px; margin-bottom: 10px; }
+  .project-card.new-project .np-title { font-size: 13px; font-weight: 500; }
+  .project-card.new-project .np-sub { font-size: 11.5px; margin-top: 4px; opacity: 0.7; }
+
+  .project-color {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .project-name { font-size: 14.5px; font-weight: 600; margin-bottom: 4px; }
+  .project-desc { font-size: 12px; color: var(--text3); margin-bottom: 14px; line-height: 1.5; }
+
+  .project-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .project-devices {
+    font-size: 11.5px;
+    color: var(--text3);
+    font-family: var(--mono);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .status-pill {
+    font-size: 10.5px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-family: var(--mono);
+  }
+
+  .pill-active { background: rgba(34,197,94,0.1); color: var(--success); }
+  .pill-offline { background: rgba(239,68,68,0.1); color: var(--danger); }
+  .pill-warning { background: rgba(245,158,11,0.1); color: var(--warn); }
+
+  /* Sparkline using canvas */
+  .sparkline { margin: 10px 0 14px; }
+
+  /* Tag */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    font-family: var(--mono);
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid;
+    margin-right: 4px;
+  }
+
+  .tag-teal { border-color: rgba(0,212,170,0.3); color: var(--accent); background: rgba(0,212,170,0.06); }
+  .tag-blue { border-color: rgba(0,153,255,0.3); color: var(--accent2); background: rgba(0,153,255,0.06); }
+  .tag-purple { border-color: rgba(124,58,237,0.3); color: #a78bfa; background: rgba(124,58,237,0.06); }
+
+  /* Widget grid (monitoring page placeholder) */
+  .widget-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .chart-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    padding: 18px;
+  }
+
+  .chart-area {
+    height: 120px;
+    position: relative;
+    margin-top: 14px;
+  }
+
+  /* Tooltip-like floating card */
+  .floating-badge {
+    position: absolute;
+    top: -8px; right: 0;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--accent);
+  }
+
+  /* Progress bar */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .progress-label { font-size: 12px; color: var(--text2); width: 100px; flex-shrink: 0; }
+
+  .progress-bar-wrap {
+    flex: 1;
+    height: 5px;
+    background: var(--bg3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+  }
+
+  .progress-val { font-size: 12px; color: var(--text3); font-family: var(--mono); width: 36px; text-align: right; }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 6px 0; }
+
+  /* Page visibility toggle */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Smooth transition hint on nav */
+  .page { animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* Responsive adjustments */
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .devices-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .projects-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left;
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr { transition: background 0.15s; cursor: pointer; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody td {
+    padding: 11px 14px;
+    font-size: 12.5px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* Toggle switch */
+  .toggle {
+    position: relative;
+    width: 36px; height: 20px;
+    flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--bg3);
+    border-radius: 20px;
+    transition: 0.2s;
+    border: 1px solid var(--border2);
+    cursor: pointer;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    left: 2px; top: 2px;
+    background: var(--text3);
+    border-radius: 50%;
+    transition: 0.2s;
+  }
+  .toggle input:checked + .toggle-slider { background: var(--accent); border-color: var(--accent); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(16px); background: #000; }
+
+  /* Form elements */
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--r);
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--text3); }
+  select.form-input { appearance: none; }
+
+  /* Search bar */
+  .search-wrap {
+    position: relative;
+  }
+  .search-wrap i {
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    color: var(--text3);
+  }
+  .search-wrap input {
+    padding-left: 32px;
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon"><i class="ti ti-circuit-board"></i></div>
+      <div>
+        <div class="logo-text">NexaIoT</div>
+        <div class="logo-sub">PLATFORM v2.4</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section">OVERVIEW</div>
+    <div class="nav-item active" onclick="navigate('dashboard', this)">
+      <i class="ti ti-layout-dashboard"></i> Dashboard
+    </div>
+    <div class="nav-item" onclick="navigate('devices', this)">
+      <i class="ti ti-cpu"></i> Devices
+      <span class="nav-badge">12</span>
+    </div>
+    <div class="nav-item" onclick="navigate('monitoring', this)">
+      <i class="ti ti-chart-line"></i> Monitoring
+    </div>
+
+    <div class="nav-section">MANAGEMENT</div>
+    <div class="nav-item" onclick="navigate('projects', this)">
+      <i class="ti ti-stack-2"></i> Projects
+    </div>
+    <div class="nav-item" onclick="navigate('analytics', this)">
+      <i class="ti ti-chart-bar"></i> Analytics
+    </div>
+    <div class="nav-item" onclick="navigate('alerts', this)">
+      <i class="ti ti-bell"></i> Alerts
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="navigate('cloud', this)">
+      <i class="ti ti-cloud"></i> Cloud Sync
+    </div>
+    <div class="nav-item" onclick="navigate('automation', this)">
+      <i class="ti ti-robot"></i> Automation
+    </div>
+
+    <div class="nav-section">SYSTEM</div>
+    <div class="nav-item" onclick="navigate('settings', this)">
+      <i class="ti ti-settings"></i> Settings
+    </div>
+    <div class="nav-item" onclick="navigate('api', this)">
+      <i class="ti ti-api"></i> API & Tokens
+    </div>
+    <div class="nav-item" onclick="navigate('docs', this)">
+      <i class="ti ti-book"></i> Documentation
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="avatar">RY</div>
+      <div class="user-info">
+        <div class="user-name">Reyhan</div>
+        <div class="user-role">Administrator</div>
+      </div>
+      <i class="ti ti-chevron-up" style="font-size:15px;color:var(--text3)"></i>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div>
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-path" id="page-path">nexaiot / overview</div>
+    </div>
+    <div class="topbar-right">
+      <div class="search-wrap" style="width:220px">
+        <i class="ti ti-search"></i>
+        <input type="text" class="form-input" placeholder="Search devices, projects..." style="height:34px;padding-top:6px;padding-bottom:6px">
+      </div>
+      <button class="icon-btn notif-dot" title="Notifications"><i class="ti ti-bell"></i></button>
+      <button class="icon-btn" title="Fullscreen"><i class="ti ti-maximize"></i></button>
+      <button class="btn btn-primary" onclick="showNewProject()"><i class="ti ti-plus"></i> New Project</button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ========== DASHBOARD PAGE ========== -->
+    <div id="page-dashboard" class="page active">
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">ACTIVE DEVICES</span>
+            <div class="stat-icon" style="background:rgba(0,212,170,0.1);color:var(--accent)">
+              <i class="ti ti-cpu"></i>
+            </div>
+          </div>
+          <div class="stat-value" style="color:var(--accent)">12</div>
+          <div class="stat-sub">
+            <span class="stat-delta delta-up">+3</span>
+            dari bulan lalu
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">SYSTEM UPTIME</span>
+            <div class="stat-icon" style="background:rgba(34,197,94,0.1);color:var(--success)">
+              <i class="ti ti-heartbeat"></i>
+            </div>
+          </div>
+          <div class="stat-value" style="color:var(--success)">99.7%</div>
+          <div class="stat-sub">
+            <span class="stat-delta delta-up">+0.2%</span>
+            vs 7 hari lalu
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">DATA POINTS / HR</span>
+            <div class="stat-icon" style="background:rgba(0,153,255,0.1);color:var(--accent2)">
+              <i class="ti ti-database"></i>
+            </div>
+          </div>
+          <div class="stat-value" style="color:var(--accent2)">48.2K</div>
+          <div class="stat-sub">
+            <span class="stat-delta delta-up">+12%</span>
+            throughput normal
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">ACTIVE ALERTS</span>
+            <div class="stat-icon" style="background:rgba(245,158,11,0.1);color:var(--warn)">
+              <i class="ti ti-alert-triangle"></i>
+            </div>
+          </div>
+          <div class="stat-value" style="color:var(--warn)">3</div>
+          <div class="stat-sub">
+            <span class="stat-delta delta-down">+2</span>
+            perlu perhatian
+          </div>
+        </div>
+      </div>
+
+      <!-- Device Cards -->
+      <div class="section-header">
+        <div class="section-title">Perangkat Aktif</div>
+        <button class="btn btn-ghost btn-sm" onclick="navigate('devices', null)">Lihat Semua <i class="ti ti-arrow-right" style="font-size:13px"></i></button>
+      </div>
+
+      <div class="devices-grid">
+        <!-- Device 1 -->
+        <div class="device-card">
+          <div class="device-header">
+            <div>
+              <div class="device-name">ESP32-Sensor-01</div>
+              <div class="device-type">ESP32 · Smart Home</div>
+            </div>
+            <div class="device-status" style="color:var(--success)">
+              <div class="status-dot online"></div>ONLINE
+            </div>
+          </div>
+          <div class="device-metrics">
+            <div class="metric-item">
+              <div class="metric-label">TEMPERATURE</div>
+              <div class="metric-value" style="color:var(--warn)">28.4°C</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">HUMIDITY</div>
+              <div class="metric-value" style="color:var(--accent2)">67%</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">RSSI</div>
+              <div class="metric-value" style="color:var(--accent)">-42 dBm</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">UPTIME</div>
+              <div class="metric-value">14d 6h</div>
+            </div>
+          </div>
+          <div class="mini-chart" id="chart1"></div>
+        </div>
+
+        <!-- Device 2 -->
+        <div class="device-card warning">
+          <div class="device-header">
+            <div>
+              <div class="device-name">ESP32-Energy-02</div>
+              <div class="device-type">ESP32 · Smart Energy</div>
+            </div>
+            <div class="device-status" style="color:var(--warn)">
+              <div class="status-dot warning"></div>WARNING
+            </div>
+          </div>
+          <div class="device-metrics">
+            <div class="metric-item">
+              <div class="metric-label">POWER</div>
+              <div class="metric-value" style="color:var(--warn)">2.4 kW</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">VOLTAGE</div>
+              <div class="metric-value">218 V</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">CURRENT</div>
+              <div class="metric-value" style="color:var(--warn)">11.2 A</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">kWh TODAY</div>
+              <div class="metric-value">18.6</div>
+            </div>
+          </div>
+          <div class="mini-chart" id="chart2" style="--bar-color: rgba(245,158,11,0.3)"></div>
+        </div>
+
+        <!-- Device 3 -->
+        <div class="device-card offline">
+          <div class="device-header">
+            <div>
+              <div class="device-name">RPi-Camera-03</div>
+              <div class="device-type">Raspberry Pi · Security</div>
+            </div>
+            <div class="device-status" style="color:var(--danger)">
+              <div class="status-dot offline"></div>OFFLINE
+            </div>
+          </div>
+          <div class="device-metrics">
+            <div class="metric-item">
+              <div class="metric-label">STATUS</div>
+              <div class="metric-value" style="color:var(--danger); font-size:12px">Disconnected</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">LAST SEEN</div>
+              <div class="metric-value" style="font-size:11px">2h 14m ago</div>
+            </div>
+            <div class="metric-item" style="grid-column: 1/-1">
+              <div class="metric-label">LAST IP</div>
+              <div class="metric-value">192.168.1.104</div>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:12px;justify-content:center;color:var(--danger);border-color:rgba(239,68,68,0.3)">
+            <i class="ti ti-refresh"></i> Ping Device
+          </button>
+        </div>
+      </div>
+
+      <!-- Two col: Activity + Alerts -->
+      <div class="two-col">
+        <!-- Activity Log -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Activity Log</span>
+            <button class="btn btn-ghost btn-sm"><i class="ti ti-filter"></i> Filter</button>
+          </div>
+          <div class="log-list">
+            <div class="log-item">
+              <div class="log-icon success"><i class="ti ti-check"></i></div>
+              <div>
+                <div class="log-msg">ESP32-Sensor-01 berhasil terhubung ke broker MQTT</div>
+                <div class="log-time">13:42:07 — 19 Mei 2025</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-icon warning"><i class="ti ti-alert-triangle"></i></div>
+              <div>
+                <div class="log-msg">ESP32-Energy-02: Arus melebihi threshold 10A → 11.2A</div>
+                <div class="log-time">13:35:22 — 19 Mei 2025</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-icon danger"><i class="ti ti-plug-x"></i></div>
+              <div>
+                <div class="log-msg">RPi-Camera-03: Koneksi terputus, timeout 30s</div>
+                <div class="log-time">11:28:01 — 19 Mei 2025</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-icon info"><i class="ti ti-cloud-upload"></i></div>
+              <div>
+                <div class="log-msg">Backup data berhasil dikirim ke cloud storage</div>
+                <div class="log-time">08:00:00 — 19 Mei 2025</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-icon success"><i class="ti ti-robot"></i></div>
+              <div>
+                <div class="log-msg">Automation rule "AC Off at 22:00" dieksekusi</div>
+                <div class="log-time">22:00:00 — 18 Mei 2025</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-icon info"><i class="ti ti-device-floppy"></i></div>
+              <div>
+                <div class="log-msg">Firmware ESP32-Sensor-01 diperbarui ke v3.1.2</div>
+                <div class="log-time">20:15:44 — 18 Mei 2025</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right col -->
+        <div class="quick-stats">
+          <!-- Alerts -->
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Active Alerts</span>
+              <span class="status-pill pill-offline" style="font-size:11px">3 open</span>
+            </div>
+            <div class="alert-item">
+              <div class="alert-dot" style="background:var(--danger)"></div>
+              <div class="alert-text">
+                <div class="alert-title">Device offline: RPi-Camera-03</div>
+                <div class="alert-sub">2 jam yang lalu · Security</div>
+              </div>
+              <button class="btn btn-ghost btn-sm">Fix</button>
+            </div>
+            <div class="alert-item">
+              <div class="alert-dot" style="background:var(--warn)"></div>
+              <div class="alert-text">
+                <div class="alert-title">Arus tinggi: Energy-02</div>
+                <div class="alert-sub">38 menit lalu · Smart Energy</div>
+              </div>
+              <button class="btn btn-ghost btn-sm">View</button>
+            </div>
+            <div class="alert-item">
+              <div class="alert-dot" style="background:var(--warn)"></div>
+              <div class="alert-text">
+                <div class="alert-title">Storage 80% penuh</div>
+                <div class="alert-sub">Hari ini · Cloud Storage</div>
+              </div>
+              <button class="btn btn-ghost btn-sm">Clean</button>
+            </div>
+          </div>
+
+          <!-- Resource usage -->
+          <div class="panel" style="padding:16px 18px">
+            <div style="font-size:13px;font-weight:600;margin-bottom:14px">Resource Usage</div>
+            <div class="progress-row">
+              <span class="progress-label">API Calls</span>
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:72%"></div></div>
+              <span class="progress-val">72%</span>
+            </div>
+            <div class="progress-row">
+              <span class="progress-label">Storage</span>
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:80%;background:var(--warn)"></div></div>
+              <span class="progress-val" style="color:var(--warn)">80%</span>
+            </div>
+            <div class="progress-row">
+              <span class="progress-label">Bandwidth</span>
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:38%;background:var(--accent2)"></div></div>
+              <span class="progress-val">38%</span>
+            </div>
+            <div class="progress-row" style="margin-bottom:0">
+              <span class="progress-label">Devices Slot</span>
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:60%"></div></div>
+              <span class="progress-val">60%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========== DEVICES PAGE ========== -->
+    <div id="page-devices" class="page">
+      <div class="section-header" style="margin-bottom:20px">
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="search-wrap" style="width:240px">
+            <i class="ti ti-search"></i>
+            <input type="text" class="form-input" placeholder="Cari perangkat..." style="height:34px;padding-top:6px;padding-bottom:6px">
+          </div>
+          <select class="form-input" style="width:140px;height:34px;padding:6px 10px">
+            <option>Semua Status</option>
+            <option>Online</option>
+            <option>Offline</option>
+            <option>Warning</option>
+          </select>
+          <select class="form-input" style="width:150px;height:34px;padding:6px 10px">
+            <option>Semua Tipe</option>
+            <option>ESP32</option>
+            <option>Raspberry Pi</option>
+            <option>Arduino</option>
+          </select>
+        </div>
+        <button class="btn btn-primary"><i class="ti ti-plus"></i> Tambah Device</button>
+      </div>
+
+      <div class="panel">
+        <table>
+          <thead>
+            <tr>
+              <th>DEVICE NAME</th>
+              <th>TYPE</th>
+              <th>STATUS</th>
+              <th>LAST SEEN</th>
+              <th>IP ADDRESS</th>
+              <th>PROJECT</th>
+              <th>FIRMWARE</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span style="font-weight:600">ESP32-Sensor-01</span></td>
+              <td><span class="tag tag-teal">ESP32</span></td>
+              <td><div style="display:flex;align-items:center;gap:6px"><div class="status-dot online"></div><span style="color:var(--success);font-family:var(--mono);font-size:11px">ONLINE</span></div></td>
+              <td style="color:var(--text3);font-family:var(--mono);font-size:11.5px">Just now</td>
+              <td style="font-family:var(--mono);font-size:12px">192.168.1.101</td>
+              <td><span class="tag tag-teal">Smart Home</span></td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text3)">v3.1.2</td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button class="icon-btn" title="Monitor"><i class="ti ti-chart-line"></i></button>
+                  <button class="icon-btn" title="Settings"><i class="ti ti-settings"></i></button>
+                  <button class="icon-btn" title="Delete" style="color:var(--danger)"><i class="ti ti-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span style="font-weight:600">ESP32-Energy-02</span></td>
+              <td><span class="tag tag-teal">ESP32</span></td>
+              <td><div style="display:flex;align-items:center;gap:6px"><div class="status-dot warning"></div><span style="color:var(--warn);font-family:var(--mono);font-size:11px">WARNING</span></div></td>
+              <td style="color:var(--text3);font-family:var(--mono);font-size:11.5px">38m ago</td>
+              <td style="font-family:var(--mono);font-size:12px">192.168.1.102</td>
+              <td><span class="tag tag-blue">Smart Energy</span></td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text3)">v3.0.8</td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button class="icon-btn"><i class="ti ti-chart-line"></i></button>
+                  <button class="icon-btn"><i class="ti ti-settings"></i></button>
+                  <button class="icon-btn" style="color:var(--danger)"><i class="ti ti-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span style="font-weight:600">RPi-Camera-03</span></td>
+              <td><span class="tag tag-purple">Raspberry Pi</span></td>
+              <td><div style="display:flex;align-items:center;gap:6px"><div class="status-dot offline"></div><span style="color:var(--danger);font-family:var(--mono);font-size:11px">OFFLINE</span></div></td>
+              <td style="color:var(--danger);font-family:var(--mono);font-size:11.5px">2h 14m ago</td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text3)">192.168.1.104</td>
+              <td><span class="tag tag-purple">Security</span></td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text3)">v2.4.1</td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button class="icon-btn"><i class="ti ti-refresh"></i></button>
+                  <button class="icon-btn"><i class="ti ti-settings"></i></button>
+                  <button class="icon-btn" style="color:var(--danger)"><i class="ti ti-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span style="font-weight:600">Arduino-Soil-04</span></td>
+              <td><span class="tag tag-blue">Arduino</span></td>
+              <td><div style="display:flex;align-items:center;gap:6px"><div class="status-dot online"></div><span style="color:var(--success);font-family:var(--mono);font-size:11px">ONLINE</span></div></td>
+              <td style="color:var(--text3);font-family:var(--mono);font-size:11.5px">1m ago</td>
+              <td style="font-family:var(--mono);font-size:12px">192.168.1.108</td>
+              <td><span class="tag tag-teal">Smart Farm</span></td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text3)">v1.9.0</td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button class="icon-btn"><i class="ti ti-chart-line"></i></button>
+                  <button class="icon-btn"><i class="ti ti-settings"></i></button>
+                  <button class="icon-btn" style="color:var(--danger)"><i class="ti ti-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== MONITORING PAGE ========== -->
+    <div id="page-monitoring" class="page">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+        <select class="form-input" style="width:200px;height:34px;padding:6px 10px">
+          <option>ESP32-Sensor-01</option>
+          <option>ESP32-Energy-02</option>
+          <option>Arduino-Soil-04</option>
+        </select>
+        <select class="form-input" style="width:130px;height:34px;padding:6px 10px">
+          <option>Last 1 hour</option>
+          <option>Last 6 hours</option>
+          <option>Last 24 hours</option>
+          <option>Last 7 days</option>
+        </select>
+        <button class="icon-btn" title="Refresh"><i class="ti ti-refresh"></i></button>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export CSV</button>
+          <button class="btn btn-ghost btn-sm"><i class="ti ti-share"></i> Share</button>
+        </div>
+      </div>
+
+      <div class="widget-grid" style="margin-bottom:14px">
+        <div class="chart-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">TEMPERATURE</div>
+              <div style="font-size:22px;font-weight:700;color:var(--warn);margin-top:2px">28.4 <span style="font-size:14px">°C</span></div>
+            </div>
+            <div class="floating-badge">LIVE</div>
+          </div>
+          <div class="chart-area" id="temp-chart-area">
+            <canvas id="tempCanvas" width="300" height="120"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">HUMIDITY</div>
+              <div style="font-size:22px;font-weight:700;color:var(--accent2);margin-top:2px">67 <span style="font-size:14px">%</span></div>
+            </div>
+            <div class="floating-badge" style="color:var(--accent2)">LIVE</div>
+          </div>
+          <div class="chart-area">
+            <canvas id="humCanvas" width="300" height="120"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data table -->
+      <div class="section-header">
+        <div class="section-title">Data Stream</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="status-dot online"></div>
+          <span style="font-size:12px;color:var(--success);font-family:var(--mono)">STREAMING</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <table>
+          <thead>
+            <tr>
+              <th>TIMESTAMP</th>
+              <th>TEMP (°C)</th>
+              <th>HUMIDITY (%)</th>
+              <th>PRESSURE (hPa)</th>
+              <th>RSSI (dBm)</th>
+              <th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody id="data-stream">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== PROJECTS PAGE ========== -->
+    <div id="page-projects" class="page">
+      <div class="section-header" style="margin-bottom:20px">
+        <div style="display:flex;gap:10px">
+          <div class="search-wrap" style="width:220px">
+            <i class="ti ti-search"></i>
+            <input type="text" class="form-input" placeholder="Cari project..." style="height:34px;padding-top:6px;padding-bottom:6px">
+          </div>
+        </div>
+        <button class="btn btn-primary"><i class="ti ti-plus"></i> New Project</button>
+      </div>
+
+      <div class="projects-grid">
+        <!-- New -->
+        <div class="project-card new-project">
+          <i class="ti ti-plus"></i>
+          <div class="np-title">Create New Project</div>
+          <div class="np-sub">Tambah monitoring IoT baru</div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-color" style="background:rgba(0,212,170,0.1);color:var(--accent)"><i class="ti ti-home"></i></div>
+          <div class="project-name">Smart Home</div>
+          <div class="project-desc">Monitoring suhu, kelembaban, dan keamanan rumah berbasis ESP32.</div>
+          <div style="margin-bottom:10px">
+            <span class="tag tag-teal">ESP32</span>
+            <span class="tag tag-blue">MQTT</span>
+          </div>
+          <div class="project-footer">
+            <div class="project-devices"><i class="ti ti-cpu" style="font-size:13px"></i> 4 devices</div>
+            <span class="status-pill pill-active">ACTIVE</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-color" style="background:rgba(245,158,11,0.1);color:var(--warn)"><i class="ti ti-bolt"></i></div>
+          <div class="project-name">Smart Energy</div>
+          <div class="project-desc">Monitoring konsumsi daya listrik real-time dan analisis anomali.</div>
+          <div style="margin-bottom:10px">
+            <span class="tag tag-teal">ESP32</span>
+            <span class="tag tag-purple">PZEM</span>
+          </div>
+          <div class="project-footer">
+            <div class="project-devices"><i class="ti ti-cpu" style="font-size:13px"></i> 2 devices</div>
+            <span class="status-pill pill-warning">WARNING</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-color" style="background:rgba(0,153,255,0.1);color:var(--accent2)"><i class="ti ti-camera"></i></div>
+          <div class="project-name">Security Cam</div>
+          <div class="project-desc">Sistem keamanan dengan Raspberry Pi dan motion detection.</div>
+          <div style="margin-bottom:10px">
+            <span class="tag tag-purple">RPi</span>
+            <span class="tag tag-blue">OpenCV</span>
+          </div>
+          <div class="project-footer">
+            <div class="project-devices"><i class="ti ti-cpu" style="font-size:13px"></i> 1 device</div>
+            <span class="status-pill pill-offline">OFFLINE</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-color" style="background:rgba(34,197,94,0.1);color:var(--success)"><i class="ti ti-plant"></i></div>
+          <div class="project-name">Smart Farm</div>
+          <div class="project-desc">Monitoring tanah, kelembaban, dan otomasi penyiraman tanaman.</div>
+          <div style="margin-bottom:10px">
+            <span class="tag tag-blue">Arduino</span>
+            <span class="tag tag-teal">Soil</span>
+          </div>
+          <div class="project-footer">
+            <div class="project-devices"><i class="ti ti-cpu" style="font-size:13px"></i> 5 devices</div>
+            <span class="status-pill pill-active">ACTIVE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ANALYTICS PAGE ========== -->
+    <div id="page-analytics" class="page">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px">
+        <div class="stat-card">
+          <div class="stat-top"><span class="stat-label">TOTAL DATA POINTS</span><div class="stat-icon" style="background:rgba(0,212,170,0.1);color:var(--accent)"><i class="ti ti-database"></i></div></div>
+          <div class="stat-value">2.4M</div>
+          <div class="stat-sub"><span class="stat-delta delta-up">+18%</span> bulan ini</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><span class="stat-label">AVG RESPONSE TIME</span><div class="stat-icon" style="background:rgba(0,153,255,0.1);color:var(--accent2)"><i class="ti ti-clock"></i></div></div>
+          <div class="stat-value">142<span style="font-size:16px;font-weight:400"> ms</span></div>
+          <div class="stat-sub"><span class="stat-delta delta-up">-8ms</span> lebih cepat</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><span class="stat-label">ALERT FIRED</span><div class="stat-icon" style="background:rgba(239,68,68,0.1);color:var(--danger)"><i class="ti ti-bell"></i></div></div>
+          <div class="stat-value">24</div>
+          <div class="stat-sub"><span class="stat-delta delta-down">+6</span> vs bulan lalu</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel" style="padding:18px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:16px">Device Uptime (7 hari terakhir)</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="progress-row" style="margin:0">
+              <span class="progress-label" style="width:130px">ESP32-Sensor-01</span>
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:99.7%"></div></div>
+              <span class="progress-val">99.7%</span>
+            </div>
+            <div class="progress-row" style="margin:0">
+              <span class="progress-label" style="width:130px">ESP32-Energy-02</span>
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:97.2%;background:var(--warn)"></div></div>
+              <span class="progress-val" style="color:var(--warn)">97.2%</span>
+            </div>
+            <div class="progress-row" style="margin:0">
+              <span class="progress-label" style="width:130px">RPi-Camera-03</span>
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:72%;background:var(--danger)"></div></div>
+              <span class="progress-val" style="color:var(--danger)">72%</span>
+            </div>
+            <div class="progress-row" style="margin:0">
+              <span class="progress-label" style="width:130px">Arduino-Soil-04</span>
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:99.1%"></div></div>
+              <span class="progress-val">99.1%</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel" style="padding:18px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:16px">Data per Project</div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>
+              <span style="font-size:13px;flex:1">Smart Home</span>
+              <span style="font-size:13px;font-family:var(--mono);color:var(--text2)">820K pts</span>
+              <span class="stat-delta delta-up" style="font-size:11px">42%</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--warn);flex-shrink:0"></div>
+              <span style="font-size:13px;flex:1">Smart Energy</span>
+              <span style="font-size:13px;font-family:var(--mono);color:var(--text2)">640K pts</span>
+              <span class="stat-delta delta-up" style="font-size:11px">32%</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0"></div>
+              <span style="font-size:13px;flex:1">Smart Farm</span>
+              <span style="font-size:13px;font-family:var(--mono);color:var(--text2)">520K pts</span>
+              <span class="stat-delta delta-up" style="font-size:11px">26%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ALERTS PAGE ========== -->
+    <div id="page-alerts" class="page">
+      <div class="section-header" style="margin-bottom:20px">
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost btn-sm" style="color:var(--danger);border-color:rgba(239,68,68,0.3)">CRITICAL (1)</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--warn);border-color:rgba(245,158,11,0.3)">WARNING (2)</button>
+          <button class="btn btn-ghost btn-sm">INFO (8)</button>
+        </div>
+        <button class="btn btn-primary"><i class="ti ti-plus"></i> Create Alert Rule</button>
+      </div>
+
+      <div class="panel" style="margin-bottom:18px">
+        <div class="panel-header"><span class="panel-title">Active Alerts</span></div>
+        <div class="alert-item" style="border-bottom:1px solid var(--border)">
+          <div style="width:36px;height:36px;border-radius:8px;background:rgba(239,68,68,0.1);color:var(--danger);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0"><i class="ti ti-alert-circle"></i></div>
+          <div style="flex:1">
+            <div class="alert-title" style="font-size:13.5px">RPi-Camera-03 Offline</div>
+            <div class="alert-sub" style="margin-top:2px">Device tidak merespon selama > 2 jam. IP: 192.168.1.104</div>
+          </div>
+          <span class="status-pill pill-offline">CRITICAL</span>
+          <button class="btn btn-ghost btn-sm" style="margin-left:8px">Resolve</button>
+        </div>
+        <div class="alert-item" style="border-bottom:1px solid var(--border)">
+          <div style="width:36px;height:36px;border-radius:8px;background:rgba(245,158,11,0.1);color:var(--warn);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0"><i class="ti ti-bolt"></i></div>
+          <div style="flex:1">
+            <div class="alert-title" style="font-size:13.5px">Arus Tinggi: ESP32-Energy-02</div>
+            <div class="alert-sub" style="margin-top:2px">Arus melebihi 10A threshold → 11.2A terdeteksi</div>
+          </div>
+          <span class="status-pill pill-warning">WARNING</span>
+          <button class="btn btn-ghost btn-sm" style="margin-left:8px">Resolve</button>
+        </div>
+        <div class="alert-item">
+          <div style="width:36px;height:36px;border-radius:8px;background:rgba(245,158,11,0.1);color:var(--warn);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0"><i class="ti ti-database"></i></div>
+          <div style="flex:1">
+            <div class="alert-title" style="font-size:13.5px">Storage hampir penuh</div>
+            <div class="alert-sub" style="margin-top:2px">Kapasitas cloud storage telah mencapai 80%</div>
+          </div>
+          <span class="status-pill pill-warning">WARNING</span>
+          <button class="btn btn-ghost btn-sm" style="margin-left:8px">Manage</button>
+        </div>
+      </div>
+
+      <div class="section-header"><div class="section-title">Alert Rules</div><button class="btn btn-ghost btn-sm"><i class="ti ti-plus"></i> Add Rule</button></div>
+      <div class="panel">
+        <table>
+          <thead><tr><th>RULE NAME</th><th>CONDITION</th><th>DEVICE</th><th>CHANNEL</th><th>ENABLED</th><th></th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:500">Device Offline</td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text3)">status == OFFLINE &gt; 5m</td>
+              <td>All Devices</td>
+              <td><span class="tag tag-blue">Email</span><span class="tag tag-teal">Telegram</span></td>
+              <td><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></td>
+              <td><button class="icon-btn"><i class="ti ti-edit"></i></button></td>
+            </tr>
+            <tr>
+              <td style="font-weight:500">High Current</td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text3)">current &gt; 10A</td>
+              <td>ESP32-Energy-02</td>
+              <td><span class="tag tag-blue">Email</span></td>
+              <td><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></td>
+              <td><button class="icon-btn"><i class="ti ti-edit"></i></button></td>
+            </tr>
+            <tr>
+              <td style="font-weight:500">High Temperature</td>
+              <td style="font-family:var(--mono);font-size:12px;color:var(--text3)">temp &gt; 35°C</td>
+              <td>All ESP32</td>
+              <td><span class="tag tag-teal">Telegram</span></td>
+              <td><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></td>
+              <td><button class="icon-btn"><i class="ti ti-edit"></i></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== CLOUD PAGE ========== -->
+    <div id="page-cloud" class="page">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px">
+        <div class="stat-card">
+          <div class="stat-top"><span class="stat-label">STORAGE USED</span><div class="stat-icon" style="background:rgba(245,158,11,0.1);color:var(--warn)"><i class="ti ti-database"></i></div></div>
+          <div class="stat-value" style="color:var(--warn)">8.1 GB</div>
+          <div class="stat-sub">dari 10 GB quota</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><span class="stat-label">LAST SYNC</span><div class="stat-icon" style="background:rgba(0,212,170,0.1);color:var(--accent)"><i class="ti ti-cloud"></i></div></div>
+          <div class="stat-value" style="font-size:18px">08:00 AM</div>
+          <div class="stat-sub"><span class="stat-delta delta-up">SUCCESS</span> auto-backup</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><span class="stat-label">RETENTION</span><div class="stat-icon" style="background:rgba(0,153,255,0.1);color:var(--accent2)"><i class="ti ti-calendar"></i></div></div>
+          <div class="stat-value">90 <span style="font-size:14px;font-weight:400">days</span></div>
+          <div class="stat-sub">Pro plan</div>
+        </div>
+      </div>
+      <div class="panel" style="padding:24px">
+        <div style="font-size:14px;font-weight:600;margin-bottom:18px">Cloud Integration</div>
+        <div class="form-group">
+          <label class="form-label">Cloud Provider</label>
+          <select class="form-input" style="max-width:300px">
+            <option>AWS IoT Core</option>
+            <option>Google Cloud IoT</option>
+            <option>Azure IoT Hub</option>
+            <option>NexaCloud (default)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sync Interval</label>
+          <select class="form-input" style="max-width:200px">
+            <option>Every 1 hour</option>
+            <option>Every 6 hours</option>
+            <option>Every 24 hours</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div style="display:flex;align-items:center;justify-content:space-between;max-width:400px">
+            <div>
+              <div class="form-label" style="margin-bottom:2px">Auto Backup</div>
+              <div style="font-size:11.5px;color:var(--text3)">Backup otomatis setiap hari pukul 08:00</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <button class="btn btn-primary"><i class="ti ti-cloud-upload"></i> Sync Now</button>
+      </div>
+    </div>
+
+    <!-- ========== AUTOMATION PAGE ========== -->
+    <div id="page-automation" class="page">
+      <div class="section-header" style="margin-bottom:20px">
+        <div class="section-title">Automation Rules</div>
+        <button class="btn btn-primary"><i class="ti ti-plus"></i> Create Rule</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">
+        <div class="panel" style="padding:18px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div>
+              <div style="font-size:14px;font-weight:600">AC Off at Night</div>
+              <div style="font-size:11.5px;color:var(--text3);margin-top:3px">Matikan AC otomatis pukul 22:00</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.8">
+            <span style="color:var(--accent3)">WHEN</span> time == 22:00<br>
+            <span style="color:var(--accent)">THEN</span> device.ESP32-AC.relay = OFF<br>
+            <span style="color:var(--text3)">NOTIFY</span> Telegram
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-ghost btn-sm"><i class="ti ti-edit"></i> Edit</button>
+            <button class="btn btn-ghost btn-sm"><i class="ti ti-player-play"></i> Run Now</button>
+          </div>
+        </div>
+
+        <div class="panel" style="padding:18px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div>
+              <div style="font-size:14px;font-weight:600">Auto Watering</div>
+              <div style="font-size:11.5px;color:var(--text3);margin-top:3px">Siram tanaman saat kelembaban tanah rendah</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.8">
+            <span style="color:var(--accent3)">WHEN</span> soil.moisture &lt; 30%<br>
+            <span style="color:var(--accent)">THEN</span> device.Arduino-Soil.pump = ON (5m)<br>
+            <span style="color:var(--text3)">NOTIFY</span> App
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-ghost btn-sm"><i class="ti ti-edit"></i> Edit</button>
+            <button class="btn btn-ghost btn-sm"><i class="ti ti-player-play"></i> Run Now</button>
+          </div>
+        </div>
+
+        <div class="panel" style="padding:18px;border-style:dashed;display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:140px;color:var(--text3)" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='';this.style.color='var(--text3)'">
+          <div style="text-align:center">
+            <i class="ti ti-plus" style="font-size:28px;margin-bottom:8px;display:block"></i>
+            <div style="font-size:13px;font-weight:500">Create New Rule</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SETTINGS PAGE ========== -->
+    <div id="page-settings" class="page">
+      <div style="display:grid;grid-template-columns:200px 1fr;gap:20px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="font-size:11px;color:var(--text3);font-family:var(--mono);padding:8px 10px;letter-spacing:1px">SETTINGS</div>
+          <div class="nav-item active">Profile</div>
+          <div class="nav-item" style="color:var(--text2)">Notifications</div>
+          <div class="nav-item" style="color:var(--text2)">Security</div>
+          <div class="nav-item" style="color:var(--text2)">Billing</div>
+          <div class="nav-item" style="color:var(--text2)">Team</div>
+          <div class="nav-item" style="color:var(--text2)">Webhooks</div>
+        </div>
+        <div class="panel" style="padding:24px">
+          <div style="font-size:14px;font-weight:600;margin-bottom:20px">Profile Settings</div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border)">
+            <div class="avatar" style="width:56px;height:56px;font-size:18px">RY</div>
+            <div>
+              <div style="font-size:14px;font-weight:500">Reyhan</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">Administrator · Pro Plan</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="margin-left:16px">Change Photo</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-input" value="Reyhan">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" value="reyhan@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Timezone</label>
+              <select class="form-input"><option>Asia/Jakarta (WIB)</option><option>Asia/Singapore</option></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Language</label>
+              <select class="form-input"><option>Bahasa Indonesia</option><option>English</option></select>
+            </div>
+          </div>
+          <button class="btn btn-primary"><i class="ti ti-device-floppy"></i> Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== API PAGE ========== -->
+    <div id="page-api" class="page">
+      <div class="panel" style="padding:24px;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:600;margin-bottom:16px">API Keys</div>
+        <div style="background:var(--bg3);border-radius:var(--r);border:1px solid var(--border2);padding:14px 16px;font-family:var(--mono);font-size:12.5px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+          <span style="color:var(--text2)">nx_prod_<span style="color:var(--accent)">••••••••••••••••••••</span>••••••••</span>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm"><i class="ti ti-copy"></i> Copy</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--danger)"><i class="ti ti-refresh"></i> Rotate</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm"><i class="ti ti-plus"></i> Generate New Key</button>
+      </div>
+
+      <div class="panel" style="padding:24px">
+        <div style="font-size:14px;font-weight:600;margin-bottom:16px">Quick Start</div>
+        <div style="background:var(--bg3);border-radius:var(--r);border:1px solid var(--border2);padding:16px;font-family:var(--mono);font-size:12px;color:var(--text2);line-height:1.8;overflow-x:auto">
+          <span style="color:var(--text3)"># Publish sensor data</span><br>
+          curl -X POST https://api.nexaiot.dev/v1/data \<br>
+          &nbsp;&nbsp;-H <span style="color:var(--accent)">"Authorization: Bearer YOUR_API_KEY"</span> \<br>
+          &nbsp;&nbsp;-d <span style="color:var(--success)">'{"device":"esp32-01","temp":28.4,"humidity":67}'</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== DOCS PAGE ========== -->
+    <div id="page-docs" class="page">
+      <div style="max-width:680px">
+        <div style="font-size:22px;font-weight:700;margin-bottom:8px">Documentation</div>
+        <div style="font-size:14px;color:var(--text3);margin-bottom:28px">Panduan lengkap integrasi NexaIoT dengan perangkat Anda</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="panel" style="padding:18px;cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''">
+            <div class="project-color" style="background:rgba(0,212,170,0.1);color:var(--accent);margin-bottom:12px"><i class="ti ti-book"></i></div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:6px">Getting Started</div>
+            <div style="font-size:12.5px;color:var(--text3);line-height:1.6">Mulai dari awal: setup akun, tambah device pertama, kirim data pertama.</div>
+          </div>
+          <div class="panel" style="padding:18px;cursor:pointer" onmouseover="this.style.borderColor='var(--accent2)'" onmouseout="this.style.borderColor=''">
+            <div class="project-color" style="background:rgba(0,153,255,0.1);color:var(--accent2);margin-bottom:12px"><i class="ti ti-api"></i></div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:6px">REST API Reference</div>
+            <div style="font-size:12.5px;color:var(--text3);line-height:1.6">Dokumentasi lengkap endpoint API untuk integrasi data.</div>
+          </div>
+          <div class="panel" style="padding:18px;cursor:pointer" onmouseover="this.style.borderColor='var(--accent3)'" onmouseout="this.style.borderColor=''">
+            <div class="project-color" style="background:rgba(124,58,237,0.1);color:#a78bfa;margin-bottom:12px"><i class="ti ti-cpu"></i></div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:6px">ESP32 Arduino Library</div>
+            <div style="font-size:12.5px;color:var(--text3);line-height:1.6">Library dan contoh kode untuk ESP32 dengan Arduino IDE.</div>
+          </div>
+          <div class="panel" style="padding:18px;cursor:pointer" onmouseover="this.style.borderColor='var(--success)'" onmouseout="this.style.borderColor=''">
+            <div class="project-color" style="background:rgba(34,197,94,0.1);color:var(--success);margin-bottom:12px"><i class="ti ti-robot"></i></div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:6px">Automation Rules</div>
+            <div style="font-size:12.5px;color:var(--text3);line-height:1.6">Cara membuat dan mengkonfigurasi aturan otomasi.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const pageMeta = {
+  dashboard: { title: 'Dashboard', path: 'nexaiot / overview' },
+  devices: { title: 'Devices', path: 'nexaiot / devices' },
+  monitoring: { title: 'Monitoring', path: 'nexaiot / monitoring' },
+  projects: { title: 'Projects', path: 'nexaiot / projects' },
+  analytics: { title: 'Analytics', path: 'nexaiot / analytics' },
+  alerts: { title: 'Alerts', path: 'nexaiot / alerts' },
+  cloud: { title: 'Cloud Sync', path: 'nexaiot / cloud' },
+  automation: { title: 'Automation', path: 'nexaiot / automation' },
+  settings: { title: 'Settings', path: 'nexaiot / settings' },
+  api: { title: 'API & Tokens', path: 'nexaiot / developer' },
+  docs: { title: 'Documentation', path: 'nexaiot / docs' },
+};
+
+function navigate(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  if (el) el.classList.add('active');
+  const meta = pageMeta[page] || {};
+  document.getElementById('page-title').textContent = meta.title || page;
+  document.getElementById('page-path').textContent = meta.path || '';
+  if (page === 'monitoring') initCharts();
+}
+
+function showNewProject() { navigate('projects', null); }
+
+// Mini bar charts
+function drawMiniBars(id, data, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = data.map(v => `<div class="chart-bar" style="height:${Math.round(v * 100)}%;background:${color}"></div>`).join('');
+}
+
+const bars1 = [0.4,0.5,0.55,0.6,0.5,0.7,0.65,0.8,0.75,0.9,0.85,0.7,0.8,0.9,0.88];
+const bars2 = [0.6,0.7,0.8,0.9,0.85,0.95,1,0.9,0.85,0.8,0.9,0.95,0.88,0.92,0.87];
+drawMiniBars('chart1', bars1, 'rgba(0,212,170,0.35)');
+drawMiniBars('chart2', bars2, 'rgba(245,158,11,0.35)');
+
+// Fake canvas charts
+function drawLineChart(canvasId, data, color) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement.offsetWidth || 300;
+  canvas.height = 120;
+  const w = canvas.width, h = canvas.height;
+  const max = Math.max(...data), min = Math.min(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => [i / (data.length - 1) * w, h - ((v - min) / range) * (h - 20) - 10]);
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const y = Math.round(h - (i / 4) * (h - 20) - 10);
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  }
+
+  // Fill
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, color.replace('1)', '0.15)'));
+  grad.addColorStop(1, color.replace('1)', '0)'));
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], h);
+  pts.forEach(p => ctx.lineTo(p[0], p[1]));
+  ctx.lineTo(pts[pts.length-1][0], h);
+  ctx.closePath(); ctx.fill();
+
+  // Line
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  pts.forEach((p, i) => i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]));
+  ctx.stroke();
+
+  // Last point dot
+  const last = pts[pts.length - 1];
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(last[0], last[1], 4, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+let chartsInited = false;
+function initCharts() {
+  if (chartsInited) return;
+  chartsInited = true;
+  setTimeout(() => {
+    const tempData = [26.2,26.8,27.1,27.5,27.9,28.0,28.2,28.4,28.1,28.3,28.4,28.2,28.4,28.5,28.4];
+    const humData = [64,65,65,66,66,67,67,67,66,67,68,67,67,66,67];
+    drawLineChart('tempCanvas', tempData, 'rgba(245,158,11,1)');
+    drawLineChart('humCanvas', humData, 'rgba(0,153,255,1)');
+    populateDataStream();
+  }, 100);
+}
+
+function populateDataStream() {
+  const tbody = document.getElementById('data-stream');
+  if (!tbody) return;
+  const rows = [];
+  const now = new Date();
+  for (let i = 14; i >= 0; i--) {
+    const t = new Date(now - i * 60000);
+    const ts = t.toTimeString().slice(0,8);
+    const temp = (27.8 + Math.random() * 1.2).toFixed(1);
+    const hum = (65 + Math.random() * 4).toFixed(0);
+    const pres = (1012 + Math.random() * 3).toFixed(1);
+    const rssi = (-40 - Math.random() * 10).toFixed(0);
+    rows.push(`<tr>
+      <td style="font-family:var(--mono);font-size:12px">${ts}</td>
+      <td style="color:var(--warn);font-family:var(--mono)">${temp}</td>
+      <td style="color:var(--accent2);font-family:var(--mono)">${hum}</td>
+      <td style="font-family:var(--mono)">${pres}</td>
+      <td style="font-family:var(--mono)">${rssi}</td>
+      <td><span class="status-pill pill-active">OK</span></td>
+    </tr>`);
+  }
+  tbody.innerHTML = rows.join('');
+}
+
+// Live data sim
+setInterval(() => {
+  if (!document.getElementById('page-monitoring').classList.contains('active')) return;
+  const tempData = Array.from({length:15}, (_,i) => 27.5 + Math.random() * 1.5);
+  const humData = Array.from({length:15}, () => 64 + Math.random() * 5);
+  drawLineChart('tempCanvas', tempData, 'rgba(245,158,11,1)');
+  drawLineChart('humCanvas', humData, 'rgba(0,153,255,1)');
+}, 5000);
+
+window.addEventListener('resize', () => {
+  if (document.getElementById('page-monitoring').classList.contains('active')) {
+    chartsInited = false;
+    initCharts();
+  }
+});
+</script>
+</body>
+</html>
